@@ -9,16 +9,9 @@
 #import <Foundation/Foundation.h>
 
 typedef void (^JPSDisplayLinkBlock)(CGFloat progress);
+typedef void (^JPSDisplayLinkCompletionBlock)(void);
 
 @interface JPSDisplayLink : NSObject
-
-/**
- Deprecated to fall in line with Apple's suggested best practices for method declarations with blocks
- https://developer.apple.com/library/ios/documentation/cocoa/conceptual/ProgrammingWithObjectiveC/WorkingwithBlocks/WorkingwithBlocks.html
-*/
-
-+ (void)runDisplayLinkBlock:(JPSDisplayLinkBlock)block duration:(CFTimeInterval)duration __attribute__((deprecated));
-
 
 /**
  This block is called multiple times.
@@ -27,5 +20,7 @@ typedef void (^JPSDisplayLinkBlock)(CGFloat progress);
 */
 
 + (void)runDisplayLinkWithDuration:(CFTimeInterval)duration block:(JPSDisplayLinkBlock)block;
+
++ (void)runDisplayLinkWithDuration:(CFTimeInterval)duration block:(JPSDisplayLinkBlock)block completion:(JPSDisplayLinkCompletionBlock)completion;
 
 @end

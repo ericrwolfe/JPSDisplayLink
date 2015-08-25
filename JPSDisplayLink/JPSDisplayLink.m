@@ -11,6 +11,7 @@
 @interface JPSDisplayLink ()
 
 @property (nonatomic, copy) JPSDisplayLinkBlock block;
+@property (nonatomic, copy) JPSDisplayLinkCompletionBlock completion;
 @property (nonatomic, strong) CADisplayLink *caDisplayLink;
 @property (nonatomic, assign) CFTimeInterval duration;
 @property (nonatomic, assign) CFTimeInterval startTime;
@@ -19,18 +20,18 @@
 
 @implementation JPSDisplayLink
 
-+ (void)runDisplayLinkBlock:(JPSDisplayLinkBlock)block duration:(CFTimeInterval)duration
-{
-    [self runDisplayLinkWithDuration:duration block:block];
-}
-
-+ (void)runDisplayLinkWithDuration:(CFTimeInterval)duration block:(JPSDisplayLinkBlock)block {
++ (void)runDisplayLinkWithDuration:(CFTimeInterval)duration block:(JPSDisplayLinkBlock)block completion:(JPSDisplayLinkCompletionBlock)completion {
     JPSDisplayLink *displayLink = [[JPSDisplayLink alloc] init];
     displayLink.block = block;
+    displayLink.completion = completion;
     displayLink.duration = duration;
     
     displayLink.caDisplayLink = [CADisplayLink displayLinkWithTarget:displayLink selector:@selector(runBlock)];
     [displayLink.caDisplayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+}
+
++ (void)runDisplayLinkWithDuration:(CFTimeInterval)duration block:(JPSDisplayLinkBlock)block {
+    [self runDisplayLinkWithDuration:duration block:block completion:nil];
 }
 
 - (void)runBlock {
@@ -40,6 +41,9 @@
     
     if (elapsed > self.duration) {
         [self.caDisplayLink invalidate];
+        if (self.completion) {
+            self.completion();
+        }
     } else {
         self.block(elapsed / self.duration);
     }
